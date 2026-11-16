@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Словарь терминов</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('glossary:theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
+    } catch (e) {}
+  </script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <div class="page" id="list-view">
+    <header class="topbar">
+      <div class="topbar-row">
+        <h1 class="brand">Словарь терминов</h1>
+        <label class="theme-field">
+          <span class="sr-only">Тема</span>
+          <select id="theme-select" class="select select-compact">
+            <option value="light">Светлая</option>
+            <option value="dark">Тёмная</option>
+            <option value="system">Как в системе</option>
+          </select>
+        </label>
+      </div>
+      <label class="field">
+        <span class="field-label">Статья</span>
+        <select id="article-select" class="select"></select>
+      </label>
+    </header>
+
+    <main>
+      <p id="loading" class="status-text">Загрузка…</p>
+      <p id="load-error" class="status-text load-error" hidden>Не удалось загрузить словарь. Обновите страницу.</p>
+
+      <div id="article-view" hidden>
+        <section class="progress" aria-label="Прогресс">
+          <p id="progress-text" class="progress-text"></p>
+          <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuemin="0">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <label class="field">
+            <span class="sr-only">Поиск</span>
+            <input id="search" class="input" type="search" placeholder="Поиск по термину или переводу" autocomplete="off" spellcheck="false">
+          </label>
+          <div class="filters">
+            <label class="field">
+              <span class="field-label">Раздел</span>
+              <select id="section-select" class="select"></select>
+            </label>
+            <label class="field">
+              <span class="field-label">Показывать</span>
+              <select id="show-select" class="select">
+                <option value="all">Все</option>
+                <option value="unlearned">Только невыученные</option>
+                <option value="starred">Только ☆</option>
+              </select>
+            </label>
+          </div>
+          <div id="hide-mode" class="segmented" role="group" aria-label="Самопроверка">
+            <button type="button" data-mode="none" aria-pressed="true">Показать всё</button>
+            <button type="button" data-mode="ru" aria-pressed="false">Скрыть перевод</button>
+            <button type="button" data-mode="term" aria-pressed="false">Скрыть термин</button>
+          </div>
+        </section>
+
+        <section class="panel cards-launch">
+          <div id="direction" class="segmented" role="group" aria-label="Направление карточек">
+            <button type="button" data-direction="en-ru" aria-pressed="true">EN→RU</button>
+            <button type="button" data-direction="ru-en" aria-pressed="false">RU→EN</button>
+          </div>
+          <button id="start-cards" type="button" class="btn btn-primary">Карточки</button>
+        </section>
+
+        <table id="terms" class="terms">
+          <thead>
+            <tr>
+              <th scope="col" class="c-learned" title="Выучил">✓</th>
+              <th scope="col" class="c-star" title="В повторение">☆</th>
+              <th scope="col" class="c-en">Термин (EN)</th>
+              <th scope="col" class="c-ipa">Транскрипция</th>
+              <th scope="col" class="c-ru">Перевод (RU)</th>
+            </tr>
+          </thead>
+        </table>
+        <p id="empty-list" class="status-text" hidden>Ничего не найдено</p>
+
+        <footer class="progress-actions">
+          <button id="export" type="button" class="btn">Экспорт</button>
+          <button id="import" type="button" class="btn">Импорт</button>
+          <input id="import-file" type="file" class="sr-only" tabindex="-1" aria-hidden="true">
+          <button id="reset" type="button" class="btn btn-danger">Сбросить прогресс</button>
+        </footer>
+        <p id="notice" class="notice" role="status" aria-live="polite"></p>
+      </div>
+    </main>
+  </div>
+
+  <section id="cards-view" class="cards-view" hidden aria-label="Карточки">
+    <div class="cards-top">
+      <button id="to-list" type="button" class="btn btn-ghost"><span aria-hidden="true">←</span> К списку</button>
+      <span id="direction-label" class="cards-direction"></span>
+      <span id="remaining" class="remaining" aria-live="polite"></span>
+    </div>
+
+    <div id="card-stage" class="card-stage">
+      <div id="card" class="card">
+        <div id="card-front" class="card-side"></div>
+        <div id="card-back" class="card-side card-back" hidden></div>
+        <p id="card-hint" class="card-hint">Нажмите на карточку или пробел</p>
+      </div>
+    </div>
+
+    <div id="answer-row" class="answer-row">
+      <button id="btn-unknown" type="button" class="btn btn-unknown" disabled>Не знаю</button>
+      <button id="btn-known" type="button" class="btn btn-known" disabled>Знаю</button>
+    </div>
+
+    <div id="cards-empty" class="cards-message" hidden>
+      <p>Все слова выучены 🎉 Отметь ☆ слова, чтобы повторить</p>
+    </div>
+
+    <div id="cards-done" class="cards-message" hidden>
+      <p id="done-text" class="done-text"></p>
+      <div class="done-actions">
+        <button id="again" type="button" class="btn btn-primary">Ещё раз</button>
+        <button id="errors-only" type="button" class="btn">Только ошибки</button>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="reset-dialog" class="dialog">
+    <form method="dialog">
+      <p id="reset-text" class="dialog-text"></p>
+      <div class="dialog-actions">
+        <button type="submit" value="cancel" class="btn">Отмена</button>
+        <button type="submit" value="confirm" class="btn btn-danger-solid">Сбросить</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
