@@ -122,11 +122,12 @@ async function loadEntries() {
   if (!Array.isArray(list)) throw new Error('articles.json');
   const valid = list.filter((item) => typeof item?.id === 'string' && typeof item?.file === 'string');
   return Promise.all(
-    valid.map(async ({ id, file }) => {
+    valid.map(async ({ id, file, look }) => {
+      const lookName = typeof look === 'string' ? look : null;
       try {
-        return { id, article: parseGlossary(await fetchText(file), id) };
+        return { id, look: lookName, article: parseGlossary(await fetchText(file), id) };
       } catch {
-        return { id, article: null };
+        return { id, look: lookName, article: null };
       }
     }),
   );
@@ -147,6 +148,8 @@ function showLoadError() {
 function selectArticle(id) {
   const entry = state.entries.find((e) => e.id === id) ?? state.entries[0];
   state.entry = entry;
+  if (entry.look) document.documentElement.dataset.look = entry.look;
+  else delete document.documentElement.dataset.look;
   ui.articleSelect.value = entry.id;
   ui.loading.hidden = true;
   state.section = 'all';

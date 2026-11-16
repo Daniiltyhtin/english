@@ -789,3 +789,83 @@ button {
   flex-wrap: wrap;
   gap: 10px;
 }
+
+:root[data-look="inferno"] {
+  color-scheme: dark;
+  --bg: #0d0606;
+  --surface: rgb(30 13 11 / 82%);
+  --surface-2: rgb(52 20 15 / 85%);
+  --text: #f3e6dc;
+  --muted: #c09a8a;
+  --border: rgb(150 50 30 / 45%);
+  --accent: #ff6a2b;
+  --accent-hover: #ff8547;
+  --accent-contrast: #1a0704;
+  --accent-soft: rgb(255 106 43 / 16%);
+  --learned: #f2b43c;
+  --learned-soft: rgb(242 180 60 / 16%);
+  --star: #ffcf5a;
+  --star-soft: rgb(255 207 90 / 16%);
+  --danger: #ff5a4e;
+  --danger-soft: rgb(255 90 78 / 16%);
+  --plaque: #3a1812;
+  --plaque-text: #c09a8a;
+  --shadow: 0 1px 2px rgb(0 0 0 / 50%), 0 8px 28px rgb(120 20 0 / 35%);
+  --scene:
+    radial-gradient(120% 60% at 50% 115%, rgb(255 90 20 / 55%), transparent 60%),
+    radial-gradient(80% 45% at 15% 110%, rgb(200 30 10 / 45%), transparent 65%),
+    radial-gradient(80% 45% at 85% 110%, rgb(200 40 10 / 45%), transparent 65%),
+    radial-gradient(70% 50% at 50% -10%, rgb(90 0 0 / 55%), transparent 70%),
+    linear-gradient(180deg, #120505 0%, #1e0806 55%, #2e0b05 100%);
+}
+
+:root[data-look="inferno"] body,
+:root[data-look="inferno"] .cards-view {
+  background: var(--scene) fixed, var(--bg);
+}
+
+:root[data-look="inferno"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(2px 2px at 12% 80%, #ffb36b, transparent),
+    radial-gradient(1.5px 1.5px at 37% 60%, #ff7a2f, transparent),
+    radial-gradient(2.5px 2.5px at 63% 90%, #ffd08a, transparent),
+    radial-gradient(1.5px 1.5px at 88% 70%, #ff5a1f, transparent),
+    radial-gradient(2px 2px at 25% 30%, #ff9a4a, transparent),
+    radial-gradient(1.5px 1.5px at 75% 20%, #ffc070, transparent);
+  background-size: 320px 420px;
+  animation: embers-rise 14s linear infinite;
+}
+
+:root[data-look="inferno"] .card,
+:root[data-look="inferno"] .panel,
+:root[data-look="inferno"] .topbar,
+:root[data-look="inferno"] table {
+  backdrop-filter: blur(6px);
+}
+
+:root[data-look="inferno"] .card {
+  border-color: rgb(255 106 43 / 40%);
+  box-shadow: 0 0 0 1px rgb(255 106 43 / 10%), 0 10px 40px rgb(255 60 0 / 25%);
+}
+
+:root[data-look="inferno"] .brand {
+  color: #ff8547;
+  text-shadow: 0 0 12px rgb(255 90 20 / 55%);
+}
+
+@keyframes embers-rise {
+  from { background-position: 0 0; }
+  to { background-position: 0 -420px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-look="inferno"] body::after {
+    animation: none;
+  }
+}
