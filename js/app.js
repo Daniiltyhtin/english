@@ -9,6 +9,7 @@ const $ = (id) => document.getElementById(id);
 const ui = {
   listView: $('list-view'),
   themeSelect: $('theme-select'),
+  lookToggle: $('look-toggle'),
   articleSelect: $('article-select'),
   loading: $('loading'),
   loadError: $('load-error'),
@@ -74,6 +75,7 @@ const state = {
   direction: store.getPref('direction') === 'ru-en' ? 'ru-en' : 'en-ru',
   session: null,
   cardsOpen: false,
+  lookOn: true,
 };
 
 function el(tag, attrs = {}, ...children) {
@@ -94,6 +96,14 @@ function applyTheme(theme) {
   if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
   else delete root.dataset.theme;
   ui.themeSelect.value = theme === 'light' || theme === 'dark' ? theme : 'system';
+}
+
+function applyLook() {
+  const look = state.entry?.look;
+  ui.lookToggle.hidden = !look;
+  ui.lookToggle.setAttribute('aria-pressed', String(state.lookOn));
+  if (look && state.lookOn) document.documentElement.dataset.look = look;
+  else delete document.documentElement.dataset.look;
 }
 
 function applySpeechAvailability() {
@@ -148,8 +158,8 @@ function showLoadError() {
 function selectArticle(id) {
   const entry = state.entries.find((e) => e.id === id) ?? state.entries[0];
   state.entry = entry;
-  if (entry.look) document.documentElement.dataset.look = entry.look;
-  else delete document.documentElement.dataset.look;
+  state.lookOn = true;
+  applyLook();
   ui.articleSelect.value = entry.id;
   ui.loading.hidden = true;
   state.section = 'all';
@@ -453,6 +463,11 @@ function bindEvents() {
   ui.themeSelect.addEventListener('change', () => {
     store.setPref('theme', ui.themeSelect.value);
     applyTheme(ui.themeSelect.value);
+  });
+
+  ui.lookToggle.addEventListener('click', () => {
+    state.lookOn = !state.lookOn;
+    applyLook();
   });
 
   ui.articleSelect.addEventListener('change', () => {
